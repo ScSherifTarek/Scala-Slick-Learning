@@ -1,5 +1,6 @@
 package com.rockthejvm
 
+import play.api.libs.json.JsValue
 import slick.lifted.ProvenShape
 
 import java.time.LocalDate
@@ -8,6 +9,10 @@ case class Movie(id: Long, name: String, releaseDate: LocalDate, lengthInMin: In
 case class Actor(id: Long, name: String)
 case class MovieActorMapping(id: Long, movieId: Long, actorId: Long)
 case class StreamingProviderMapping(id: Long, movieId: Long, streamingProvider: StreamingService.Provider)
+// part 4
+case class MovieLocations(id: Long, movieId: Long, locations: List[String])
+case class MovieProperties(id: Long, movieId: Long, properties: Map[String, String])
+case class ActorDetails(id: Long, actorId: Long, personalDetails: JsValue)
 object StreamingService extends Enumeration {
   type Provider = Value
   val Netflix = Value("Netflix")
@@ -62,6 +67,36 @@ object SlickTables {
   val ddl = tables.map(_.schema).reduce(_ ++ _)
 }
 
+object SpecialTables {
+  import CustomPostgresProfile.api._
+
+  class MovieLocationsTable(tag: Tag) extends Table[MovieLocations](tag, Some("movies"), "MovieLocations") {
+    def id = column[Long]("movie_location_id", O.PrimaryKey, O.AutoInc)
+    def movieId = column[Long]("movie_id")
+    def locations = column[List[String]]("locations")
+    override def * : ProvenShape[MovieLocations] = (id, movieId, locations) <> (MovieLocations.tupled, MovieLocations.unapply)
+  }
+
+  lazy val movieLocationsTable = TableQuery[MovieLocationsTable]
+
+  class MoviePropertiesTable(tag: Tag) extends Table[MovieProperties](tag, Some("movies"), "MovieProperties") {
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    def movieId = column[Long]("movie_id")
+    def properties = column[Map[String, String]]("properties")
+    override def * : ProvenShape[MovieProperties] = (id, movieId, properties) <> (MovieProperties.tupled, MovieProperties.unapply)
+  }
+
+  lazy val moviePropertiesTable = TableQuery[MoviePropertiesTable]
+
+  class ActorDetailsTable(tag: Tag) extends Table[ActorDetails](tag, Some("movies"), "ActorDetails") {
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    def actorId = column[Long]("actor_id")
+    def personalDetails = column[JsValue]("personal_info")
+    override def * : ProvenShape[ActorDetails] = (id, actorId, personalDetails) <> (ActorDetails.tupled, ActorDetails.unapply)
+  }
+
+  lazy val actorPropertiesTable = TableQuery[ActorDetailsTable]
+}
 object TableDefinitionGenerator extends App {
   println(SlickTables.ddl.createIfNotExistsStatements.mkString(";\n"))
 }

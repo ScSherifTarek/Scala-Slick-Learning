@@ -1,5 +1,6 @@
 package com.rockthejvm
 
+import play.api.libs.json.Json
 import slick.jdbc.GetResult
 
 import java.time.LocalDate
@@ -11,7 +12,7 @@ object PrivateExecutionContext {
   implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(executor)
 }
 object Main {
-  import slick.jdbc.PostgresProfile.api._
+  import CustomPostgresProfile.api._
   import PrivateExecutionContext._
 
   val shawshankRedemption = Movie(1L, "The Shawshank Redemption", LocalDate.of(1994, 9, 23), 162)
@@ -25,6 +26,19 @@ object Main {
     StreamingProviderMapping(1L, 2L, StreamingService.Netflix),
     StreamingProviderMapping(2L, 10L, StreamingService.Disney),
   )
+  val starWarsLocations = MovieLocations(1L, 4L, List("England", "Tunisia", "Italy"))
+  val starWarsProperties = MovieProperties(1L, 4L, Map(
+    "Genre" -> "Sci-Fi",
+    "Features" -> "Lightsabers"
+  ))
+  val liamNessonDetails = ActorDetails(1L, 3L, Json.parse(
+    """
+      |{
+      |  "born": 1952,
+      |  "awesome": "yes"
+      |}
+      |""".stripMargin
+  ))
   def demoInsertMovie(): Unit = {
     val queryDescription = SlickTables.movieTable += theMatrix
     val futureId: Future[Int] = Connection.db.run(queryDescription)
@@ -116,11 +130,23 @@ object Main {
     Connection.db.run(q.result)
   }
 
+  def insertLocations(): Unit = {
+    val q = SpecialTables.movieLocationsTable += starWarsLocations
+    Connection.db.run(q)
+  }
+
+  def insertProperties(): Unit =  {
+    val q = SpecialTables.moviePropertiesTable += starWarsProperties
+    Connection.db.run(q)
+  }
+
+  def insertActorDetails(): Unit = {
+    val q = SpecialTables.actorPropertiesTable += liamNessonDetails
+    Connection.db.run(q)
+  }
+
   def main(args: Array[String]): Unit = {
-    findProvidersForMovie(10L).onComplete {
-      case Success(providers) => println(s"Found providers: ${providers.map(_.streamingProvider)}")
-      case Success(e) => println(s"Query failed, reason: ${e}")
-    }
+
     Thread.sleep(5000)
     PrivateExecutionContext.executor.shutdown()
   }

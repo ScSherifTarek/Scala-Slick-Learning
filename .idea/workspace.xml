@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94c0f3cc-f371-416f-a45e-db838e84d4fd" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/scala/com/rockthejvm/CustomPostgresProfile.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/com/rockthejvm/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/com/rockthejvm/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/com/rockthejvm/Model.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/com/rockthejvm/Model.scala" afterDir="false" />
     </list>
@@ -36,6 +38,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
+    "Application.TableDefinitionGenerator.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -49,7 +52,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.TableDefinitionGenerator">
+  <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="com.rockthejvm.Main" />
       <module name="slick-course" />
