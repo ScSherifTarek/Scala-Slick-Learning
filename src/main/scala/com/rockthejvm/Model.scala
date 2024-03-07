@@ -7,6 +7,14 @@ import java.time.LocalDate
 case class Movie(id: Long, name: String, releaseDate: LocalDate, lengthInMin: Int)
 case class Actor(id: Long, name: String)
 case class MovieActorMapping(id: Long, movieId: Long, actorId: Long)
+case class StreamingProviderMapping(id: Long, movieId: Long, streamingProvider: StreamingService.Provider)
+object StreamingService extends Enumeration {
+  type Provider = Value
+  val Netflix = Value("Netflix")
+  val Disney = Value("Disney")
+  val Prime = Value("Prime")
+  val Hulu = Value("Hulu")
+}
 object SlickTables {
   import slick.jdbc.PostgresProfile.api._
 
@@ -36,4 +44,24 @@ object SlickTables {
   }
 
   lazy val movieActorTable = TableQuery[MovieActorMappingTable]
+
+  class StreamingProviderMappingTable(tag: Tag) extends Table[StreamingProviderMapping](tag, Some("movies"), "StreamingProviderMapping") {
+    implicit val providerMapper = MappedColumnType.base[StreamingService.Provider, String](
+      provider => provider.toString,
+      string => StreamingService.withName(string)
+    )
+    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    def movieId = column[Long]("movie_id")
+    def streaming_provider = column[StreamingService.Provider]("streaming_provider")
+    override def * : ProvenShape[StreamingProviderMapping] = (id, movieId, streaming_provider) <> (StreamingProviderMapping.tupled, StreamingProviderMapping.unapply)
+  }
+
+  lazy val streamingProviderMappingTable = TableQuery[StreamingProviderMappingTable]
+
+  val tables = List(movieTable, actorTable, movieActorTable, streamingProviderMappingTable)
+  val ddl = tables.map(_.schema).reduce(_ ++ _)
+}
+
+object TableDefinitionGenerator extends App {
+  println(SlickTables.ddl.createIfNotExistsStatements.mkString(";\n"))
 }

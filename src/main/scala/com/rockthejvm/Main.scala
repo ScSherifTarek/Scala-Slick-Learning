@@ -20,6 +20,11 @@ object Main {
   val tomHanks = Actor(1L, "Tom Hanks")
   val juliaRoberts = Actor(2L, "Julia Roberts")
   val liamNesson = Actor(3L, "Liam Nesson")
+  val providers = List(
+    StreamingProviderMapping(0L, 1L, StreamingService.Netflix),
+    StreamingProviderMapping(1L, 2L, StreamingService.Netflix),
+    StreamingProviderMapping(2L, 10L, StreamingService.Disney),
+  )
   def demoInsertMovie(): Unit = {
     val queryDescription = SlickTables.movieTable += theMatrix
     val futureId: Future[Int] = Connection.db.run(queryDescription)
@@ -101,10 +106,20 @@ object Main {
     Connection.db.run(joinQuery.result)
   }
 
+  def addStreamingProviders() = {
+    val insertQuery = SlickTables.streamingProviderMappingTable ++= providers
+    Connection.db.run(insertQuery)
+  }
+
+  def findProvidersForMovie(movieId: Long): Future[Seq[StreamingProviderMapping]] = {
+    val q = SlickTables.streamingProviderMappingTable.filter(_.movieId === movieId)
+    Connection.db.run(q.result)
+  }
+
   def main(args: Array[String]): Unit = {
-    findAllActorsByMovie(4L).onComplete {
-      case Success(actors) => println(s"Actors from Star Wars: $actors")
-      case Failure(e) => println(s"Query failed, reason: $e")
+    findProvidersForMovie(10L).onComplete {
+      case Success(providers) => println(s"Found providers: ${providers.map(_.streamingProvider)}")
+      case Success(e) => println(s"Query failed, reason: ${e}")
     }
     Thread.sleep(5000)
     PrivateExecutionContext.executor.shutdown()
