@@ -145,8 +145,20 @@ object Main {
     Connection.db.run(q)
   }
 
-  def main(args: Array[String]): Unit = {
+  def findMoviesIn(location: String): Future[Seq[Movie]] = {
+    val q = SpecialTables.movieLocationsTable
+      .filter(_.locations @> List(location).bind)
+      .join(SlickTables.movieTable)
+      .on(_.movieId === _.id)
+      .map(_._2)
+    Connection.db.run(q.result)
+  }
 
+  def main(args: Array[String]): Unit = {
+    findMoviesIn("Tunisia").onComplete {
+      case Success(r) => println(s"Success: $r")
+      case Failure(e) => println(s"Error: $e")
+    }
     Thread.sleep(5000)
     PrivateExecutionContext.executor.shutdown()
   }
